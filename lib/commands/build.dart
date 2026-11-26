@@ -19,39 +19,28 @@ import '../elinux_cache.dart';
 import '../elinux_plugins.dart';
 
 class ELinuxBuildCommand extends BuildCommand {
-  ELinuxBuildCommand({bool verboseHelp = false})
-      : super(
-          androidSdk: globals.androidSdk,
-          artifacts: globals.artifacts!,
-          buildSystem: globals.buildSystem,
-          cache: globals.cache,
-          config: globals.config,
-          fileSystem: globals.fs,
-          fileSystemUtils: globals.fsUtils,
-          flutterVersion: globals.flutterVersion,
-          logger: globals.logger,
-          osUtils: globals.os,
-          platform: globals.platform,
-          plistParser: globals.plistParser,
-          processManager: globals.processManager,
-          processUtils: globals.processUtils,
-          templateRenderer: globals.templateRenderer,
-          terminal: globals.terminal,
-          verboseHelp: verboseHelp,
-          xcode: globals.xcode,
-        ) {
-    addSubcommand(BuildPackageCommand(verboseHelp: verboseHelp));
+  ELinuxBuildCommand({
+    super.verboseHelp,
+    required super.toolContext,
+    required super.androidContext,
+    required super.appleContext,
+    required super.buildSystem,
+    required super.featureFlags,
+    required super.templateRenderer,
+    super.extensionBuildManager,
+  }) {
+    addSubcommand(BuildPackageCommand(toolContext: toolContext, verboseHelp: verboseHelp));
   }
 }
 
 class BuildPackageCommand extends BuildSubCommand with ELinuxExtension, ELinuxRequiredArtifacts {
   /// See: [BuildApkCommand] in `build_apk.dart`
-  BuildPackageCommand({bool verboseHelp = false})
+  BuildPackageCommand({required super.toolContext, bool verboseHelp = false})
       : super(
           verboseHelp: verboseHelp,
           logger: globals.logger,
         ) {
-    addCommonDesktopBuildOptions(verboseHelp: verboseHelp);
+    registerOptionBundles(const <OptionBundle>[DesktopBuildOptionsBundle()]);
     argParser.addOption(
       'target-arch',
       defaultsTo: _getCurrentHostPlatformArchName(),

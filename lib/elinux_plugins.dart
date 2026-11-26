@@ -266,7 +266,7 @@ Future<bool> _writeELinuxFlutterPluginsList(
 
   final Map<String, Object> pluginsMap = <String, Object>{};
   {
-    final List<Plugin> plugins = await findPlugins(project);
+    final List<Plugin> plugins = await findPlugins(project, logger: globals.logger);
     pluginsMap[iosKey] = _filterPluginsByPlatform(plugins, iosKey);
     pluginsMap[androidKey] = _filterPluginsByPlatform(plugins, androidKey);
     pluginsMap[macosKey] = _filterPluginsByPlatform(plugins, macosKey);

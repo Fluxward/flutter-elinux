@@ -14,7 +14,12 @@ import 'package:path/path.dart';
 import '../elinux_cmake_project.dart';
 
 class ELinuxCleanCommand extends CleanCommand {
-  ELinuxCleanCommand({super.verbose});
+  ELinuxCleanCommand({
+    super.verbose,
+    required super.toolContext,
+    required super.xcode,
+    required super.xcodeProjectInterpreter,
+  });
 
   /// See: [CleanCommand.runCommand] in `clean.dart`
   @override

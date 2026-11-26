@@ -11,10 +11,10 @@ import 'package:flutter_tools/runner.dart' as runner;
 import 'package:flutter_tools/src/application_package.dart';
 import 'package:flutter_tools/src/artifacts.dart';
 import 'package:flutter_tools/src/base/context.dart';
-import 'package:flutter_tools/src/base/io.dart';
 import 'package:flutter_tools/src/base/logger.dart';
 import 'package:flutter_tools/src/base/template.dart';
 import 'package:flutter_tools/src/build_system/build_targets.dart';
+import 'package:flutter_tools/src/build_system/targets/hook_runner_native.dart';
 import 'package:flutter_tools/src/cache.dart';
 import 'package:flutter_tools/src/commands/config.dart';
 import 'package:flutter_tools/src/commands/devices.dart';
@@ -25,12 +25,16 @@ import 'package:flutter_tools/src/commands/install.dart';
 import 'package:flutter_tools/src/commands/logs.dart';
 import 'package:flutter_tools/src/commands/screenshot.dart';
 import 'package:flutter_tools/src/commands/symbolize.dart';
+import 'package:flutter_tools/src/context/tool_dependencies.dart';
 import 'package:flutter_tools/src/device.dart';
 import 'package:flutter_tools/src/doctor.dart';
 import 'package:flutter_tools/src/features.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
+import 'package:flutter_tools/src/hook_runner.dart';
 import 'package:flutter_tools/src/isolated/build_targets.dart';
 import 'package:flutter_tools/src/isolated/mustache_template.dart';
+import 'package:flutter_tools/src/isolated/native_assets/test/native_assets.dart';
+import 'package:flutter_tools/src/native_assets.dart';
 import 'package:flutter_tools/src/runner/flutter_command.dart';
 import 'package:path/path.dart';
 
@@ -80,52 +84,96 @@ Future<void> main(List<String> args) async {
 
   await runner.run(
     args,
-    () => <FlutterCommand>[
-      // Commands directly from flutter_tools.
-      ConfigCommand(verboseHelp: verboseHelp),
-      DevicesCommand(verboseHelp: verboseHelp),
-      DoctorCommand(verbose: verbose),
-      EmulatorsCommand(),
-      GenerateLocalizationsCommand(
-        fileSystem: globals.fs,
-        logger: globals.logger,
-        artifacts: globals.artifacts!,
-        processManager: globals.processManager,
-      ),
-      InstallCommand(verboseHelp: verboseHelp),
-      LogsCommand(
-        sigint: ProcessSignal.sigint,
-        sigterm: ProcessSignal.sigterm,
-      ),
-      ScreenshotCommand(fs: globals.fs),
-      SymbolizeCommand(stdio: globals.stdio, fileSystem: globals.fs),
-      ELinuxUpgradeCommand(verboseHelp: verboseHelp),
-      // Commands extended for ELinux.
-      ELinuxAnalyzeCommand(verboseHelp: verboseHelp),
-      ELinuxAttachCommand(
+    (ToolDependencies toolDependencies) => <FlutterCommand>[
+      ConfigCommand(
         verboseHelp: verboseHelp,
-        stdio: globals.stdio,
-        logger: globals.logger,
-        terminal: globals.terminal,
-        signals: globals.signals,
-        platform: globals.platform,
-        processInfo: globals.processInfo,
-        fileSystem: globals.fs,
+        androidContext: toolDependencies.androidContext,
+        toolContext: toolDependencies.toolContext,
+        featureFlags: featureFlags,
+        extensionManager: toolDependencies.extensionManager,
       ),
-      ELinuxBuildCommand(verboseHelp: verboseHelp),
-      ELinuxCleanCommand(verbose: verbose),
-      ELinuxCreateCommand(verboseHelp: verboseHelp),
-      ELinuxDriveCommand(verboseHelp: verboseHelp),
-      ELinuxPackagesCommand(),
+      DevicesCommand(
+        deviceManager: toolDependencies.deviceManager,
+        doctor: globals.doctor!,
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      DoctorCommand(
+        doctor: toolDependencies.doctor,
+        extensionManager: toolDependencies.extensionManager,
+        toolContext: toolDependencies.toolContext,
+        verbose: verbose,
+      ),
+      EmulatorsCommand(
+        doctor: toolDependencies.doctor,
+        emulatorManager: toolDependencies.emulatorManager,
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      GenerateLocalizationsCommand(toolContext: toolDependencies.toolContext),
+      InstallCommand(toolContext: toolDependencies.toolContext, verboseHelp: verboseHelp),
+      LogsCommand(toolContext: toolDependencies.toolContext),
+      ScreenshotCommand(toolContext: toolDependencies.toolContext),
+      SymbolizeCommand(toolContext: toolDependencies.toolContext),
+      ELinuxUpgradeCommand(toolContext: toolDependencies.toolContext, verboseHelp: verboseHelp),
+      ELinuxAnalyzeCommand(
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      ELinuxAttachCommand(
+        buildSystem: toolDependencies.buildSystem,
+        buildTargets: const BuildTargetsImpl(),
+        toolContext: toolDependencies.toolContext,
+        xcode: toolDependencies.appleContext.xcode,
+        verboseHelp: verboseHelp,
+      ),
+      ELinuxBuildCommand(
+        androidContext: toolDependencies.androidContext,
+        appleContext: toolDependencies.appleContext,
+        buildSystem: toolDependencies.buildSystem,
+        extensionBuildManager: toolDependencies.extensionBuildManager,
+        featureFlags: toolDependencies.featureFlags,
+        templateRenderer: const MustacheTemplateRenderer(),
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      ELinuxCleanCommand(
+        verbose: verbose,
+        toolContext: toolDependencies.toolContext,
+        xcode: toolDependencies.appleContext.xcode,
+        xcodeProjectInterpreter: toolDependencies.appleContext.xcodeProjectInterpreter,
+      ),
+      ELinuxCreateCommand(
+        androidContext: toolDependencies.androidContext,
+        appleContext: toolDependencies.appleContext,
+        templateRenderer: const MustacheTemplateRenderer(),
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      ELinuxDriveCommand(
+        buildSystem: toolDependencies.buildSystem,
+        buildTargets: const BuildTargetsImpl(),
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+      ),
+      ELinuxPackagesCommand(
+        buildSystem: toolDependencies.buildSystem,
+        toolContext: toolDependencies.toolContext,
+      ),
       ELinuxPrecacheCommand(
         verboseHelp: verboseHelp,
-        cache: globals.cache,
-        logger: globals.logger,
-        platform: globals.platform,
+        cache: toolDependencies.toolContext.cache,
+        logger: toolDependencies.toolContext.logger,
+        platform: toolDependencies.toolContext.platform,
         featureFlags: featureFlags,
       ),
-      ELinuxRunCommand(verboseHelp: verboseHelp),
-      ELinuxTestCommand(verboseHelp: verboseHelp),
+      ELinuxRunCommand(toolContext: toolDependencies.toolContext, verboseHelp: verboseHelp),
+      ELinuxTestCommand(
+        toolContext: toolDependencies.toolContext,
+        verboseHelp: verboseHelp,
+        verbose: verbose,
+        nativeAssetsBuilder: toolDependencies.toolContext.nativeAssetsBuilder,
+      ),
     ],
     verbose: verbose,
     verboseHelp: verboseHelp,
@@ -157,6 +205,8 @@ Future<void> main(List<String> args) async {
             processManager: globals.processManager,
             userMessages: globals.userMessages,
           ),
+      FlutterHookRunner: () => FlutterHookRunnerNative(),
+      TestCompilerNativeAssetsBuilder: () => const TestCompilerNativeAssetsBuilderImpl(),
       BuildTargets: () => const BuildTargetsImpl(),
       if (verbose && !muteCommandLogging)
         Logger: () => VerboseLogger(StdoutLogger(

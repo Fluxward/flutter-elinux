@@ -5,7 +5,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter_tools/src/base/os.dart';
+import 'package:flutter_tools/src/build_system/build_system.dart';
 import 'package:flutter_tools/src/commands/packages.dart';
+import 'package:flutter_tools/src/context/tool_context.dart';
 import 'package:flutter_tools/src/dart/pub.dart';
 import 'package:flutter_tools/src/globals.dart' as globals;
 import 'package:flutter_tools/src/project.dart';
@@ -19,35 +21,101 @@ import '../elinux_plugins.dart';
 ///
 /// Source: [PackagesCommand] in `packages.dart`
 class ELinuxPackagesCommand extends FlutterCommand {
-  ELinuxPackagesCommand() {
-    addSubcommand(ELinuxPackagesGetCommand(
-        'get', "Get the current package's dependencies.", PubContext.pubGet));
-    addSubcommand(ELinuxPackagesGetCommand('upgrade',
-        "Upgrade the current package's dependencies to latest versions.", PubContext.pubUpgrade));
+  ELinuxPackagesCommand({required BuildSystem buildSystem, required ToolContext toolContext})
+      : super(toolContext: toolContext) {
     addSubcommand(
-        ELinuxPackagesGetCommand('add', 'Add a dependency to pubspec.yaml.', PubContext.pubAdd));
-    addSubcommand(ELinuxPackagesGetCommand(
-        'remove', 'Removes a dependency from the current package.', PubContext.pubRemove));
-    addSubcommand(PackagesTestCommand());
-    addSubcommand(PackagesForwardCommand(
-        'publish', 'Publish the current package to pub.dartlang.org',
-        requiresPubspec: true));
-    addSubcommand(PackagesForwardCommand('downgrade', 'Downgrade packages in a Flutter project',
-        requiresPubspec: true));
+      ELinuxPackagesGetCommand(
+        'get',
+        "Get the current package's dependencies.",
+        PubContext.pubGet,
+        buildSystem: buildSystem,
+        toolContext: toolContext,
+      ),
+    );
     addSubcommand(
-        PackagesForwardCommand('deps', 'Print package dependencies', requiresPubspec: true));
+      ELinuxPackagesGetCommand(
+        'upgrade',
+        "Upgrade the current package's dependencies to latest versions.",
+        PubContext.pubUpgrade,
+        buildSystem: buildSystem,
+        toolContext: toolContext,
+      ),
+    );
     addSubcommand(
-        PackagesForwardCommand('run', 'Run an executable from a package', requiresPubspec: true));
-    addSubcommand(PackagesForwardCommand('cache', 'Work with the Pub system cache'));
-    addSubcommand(PackagesForwardCommand('version', 'Print Pub version'));
-    addSubcommand(PackagesForwardCommand('uploader', 'Manage uploaders for a package on pub.dev'));
-    addSubcommand(PackagesForwardCommand('login', 'Log into pub.dev.'));
-    addSubcommand(PackagesForwardCommand('logout', 'Log out of pub.dev.'));
-    addSubcommand(PackagesForwardCommand('global', 'Work with Pub global packages'));
-    addSubcommand(PackagesForwardCommand(
-        'outdated', 'Analyze dependencies to find which ones can be upgraded',
-        requiresPubspec: true));
-    addSubcommand(PackagesPassthroughCommand());
+      ELinuxPackagesGetCommand(
+        'add',
+        'Add a dependency to pubspec.yaml.',
+        PubContext.pubAdd,
+        buildSystem: buildSystem,
+        toolContext: toolContext,
+      ),
+    );
+    addSubcommand(
+      ELinuxPackagesGetCommand(
+        'remove',
+        'Removes a dependency from the current package.',
+        PubContext.pubRemove,
+        buildSystem: buildSystem,
+        toolContext: toolContext,
+      ),
+    );
+    addSubcommand(PackagesTestCommand(toolContext: toolContext));
+    addSubcommand(
+      PackagesForwardCommand(
+        'publish',
+        'Publish the current package to pub.dartlang.org.',
+        toolContext: toolContext,
+        requiresPubspec: true,
+      ),
+    );
+    addSubcommand(
+      PackagesForwardCommand(
+        'downgrade',
+        'Downgrade packages in a Flutter project.',
+        toolContext: toolContext,
+        requiresPubspec: true,
+      ),
+    );
+    addSubcommand(
+      PackagesForwardCommand('deps', 'Print package dependencies.', toolContext: toolContext),
+    ); // path to package can be specified with --directory argument
+    addSubcommand(
+      PackagesForwardCommand(
+        'run',
+        'Run an executable from a package.',
+        toolContext: toolContext,
+        requiresPubspec: true,
+      ),
+    );
+    addSubcommand(
+      PackagesForwardCommand('cache', 'Work with the Pub system cache.', toolContext: toolContext),
+    );
+    addSubcommand(
+      PackagesForwardCommand('version', 'Print Pub version.', toolContext: toolContext),
+    );
+    addSubcommand(
+      PackagesForwardCommand(
+        'uploader',
+        'Manage uploaders for a package on pub.dev.',
+        toolContext: toolContext,
+      ),
+    );
+    addSubcommand(PackagesForwardCommand('login', 'Log into pub.dev.', toolContext: toolContext));
+    addSubcommand(
+      PackagesForwardCommand('logout', 'Log out of pub.dev.', toolContext: toolContext),
+    );
+    addSubcommand(
+      PackagesForwardCommand('global', 'Work with Pub global packages.', toolContext: toolContext),
+    );
+    addSubcommand(
+      PackagesForwardCommand(
+        'outdated',
+        'Analyze dependencies to find which ones can be upgraded.',
+        toolContext: toolContext,
+        requiresPubspec: true,
+      ),
+    );
+    addSubcommand(PackagesPassthroughCommand(toolContext: toolContext));
   }
 
   @override
@@ -64,7 +132,8 @@ class ELinuxPackagesCommand extends FlutterCommand {
 }
 
 class ELinuxPackagesGetCommand extends PackagesGetCommand with _PostRunPluginInjection {
-  ELinuxPackagesGetCommand(super.commandName, super.description, super.context);
+  ELinuxPackagesGetCommand(super.commandName, super.description, super.context,
+      {required super.buildSystem, required super.toolContext});
 }
 
 mixin _PostRunPluginInjection on FlutterCommand {

@@ -23,6 +23,7 @@ import 'package:meta/meta.dart';
 class ELinuxUpgradeCommand extends UpgradeCommand {
   ELinuxUpgradeCommand({
     required super.verboseHelp,
+    required super.toolContext,
   });
 
   @override

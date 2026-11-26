@@ -4,19 +4,15 @@
 // found in the LICENSE file.
 
 import 'package:flutter_tools/src/commands/drive.dart';
-import 'package:flutter_tools/src/globals.dart' as globals;
 
 import '../elinux_cache.dart';
 import '../elinux_plugins.dart';
 
 class ELinuxDriveCommand extends DriveCommand with ELinuxExtension, ELinuxRequiredArtifacts {
-  ELinuxDriveCommand({super.verboseHelp})
-      : super(
-          fileSystem: globals.fs,
-          logger: globals.logger,
-          platform: globals.platform,
-          terminal: globals.terminal,
-          outputPreferences: globals.outputPreferences,
-          signals: globals.signals,
-        );
+  ELinuxDriveCommand({
+    super.verboseHelp,
+    required super.toolContext,
+    required super.buildSystem,
+    required super.buildTargets,
+  });
 }
