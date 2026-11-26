@@ -78,7 +78,7 @@ class ELinuxBuilder {
     final String buildModeName = buildInfo.mode.cliName;
     // Used by AotElfBase to generate an AOT snapshot.
     final String targetPlatformName =
-        getNameForTargetPlatform(_getTargetPlatformForArch(eLinuxBuildInfo.targetArch));
+        _getTargetPlatformForArch(eLinuxBuildInfo.targetArch).getName();
 
     final Environment environment = Environment(
       projectDir: project.directory,

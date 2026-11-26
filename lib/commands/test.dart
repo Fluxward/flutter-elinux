@@ -8,5 +8,10 @@ import 'package:flutter_tools/src/commands/test.dart';
 import '../elinux_plugins.dart';
 
 class ELinuxTestCommand extends TestCommand with ELinuxExtension {
-  ELinuxTestCommand({super.verboseHelp});
+  ELinuxTestCommand({
+    super.verboseHelp,
+    super.verbose,
+    super.nativeAssetsBuilder,
+    required super.toolContext,
+  });
 }

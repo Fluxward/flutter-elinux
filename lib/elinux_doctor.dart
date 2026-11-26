@@ -11,7 +11,7 @@ import 'package:flutter_tools/src/base/user_messages.dart';
 import 'package:flutter_tools/src/base/version.dart';
 import 'package:flutter_tools/src/doctor.dart';
 import 'package:flutter_tools/src/doctor_validator.dart';
-
+import 'package:flutter_tools_core/flutter_tools_core.dart';
 import 'package:process/process.dart';
 
 ELinuxWorkflow? get eLinuxWorkflow => context.get<ELinuxWorkflow>();
@@ -75,7 +75,7 @@ class ELinuxValidator extends DoctorValidator {
       'They are likely available from your distribution (e.g.: apt install libegl1-mesa libgles2-mesa)';
 
   @override
-  Future<ValidationResult> validate() async {
+  Future<ValidationResult> validateImpl() async {
     ValidationType validationType = ValidationType.success;
     final List<ValidationMessage> messages = <ValidationMessage>[];
 
@@ -195,10 +195,6 @@ class ELinuxValidator extends DoctorValidator {
     return (result?.exitCode ?? 1) == 0;
   }
 
-  @override
-  Future<ValidationResult> validateImpl() {
-    throw UnimplementedError();
-  }
 }
 
 /// The eLinux-specific implementation of a [Workflow].

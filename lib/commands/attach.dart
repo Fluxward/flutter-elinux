@@ -11,12 +11,9 @@ class ELinuxAttachCommand extends AttachCommand with ELinuxExtension {
   ELinuxAttachCommand({
     super.verboseHelp,
     super.hotRunnerFactory,
-    required super.stdio,
-    required super.logger,
-    required super.terminal,
-    required super.signals,
-    required super.platform,
-    required super.processInfo,
-    required super.fileSystem,
+    required super.toolContext,
+    required super.buildSystem,
+    required super.buildTargets,
+    required super.xcode,
   });
 }

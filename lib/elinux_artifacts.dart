@@ -39,13 +39,13 @@ class ELinuxArtifacts extends CachedArtifacts {
     if (artifact == Artifact.genSnapshot &&
         hostPlatform == HostPlatform.linux_x64 &&
         platform != null &&
-        getNameForTargetPlatform(platform).startsWith('linux')) {
+        platform.getName().startsWith('linux')) {
       assert(mode != null, 'Need to specify a build mode.');
       assert(mode != BuildMode.debug, 'Artifact $artifact only available in non-debug mode.');
 
       final String arch = _getArchForTargetPlatform(platform);
       return _getEngineArtifactsDirectory(arch, mode!)
-          .childDirectory(getNameForHostPlatform(hostPlatform))
+          .childDirectory(hostPlatform.cliName)
           .childFile('gen_snapshot')
           .path;
     }

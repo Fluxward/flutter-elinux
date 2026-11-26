@@ -12,7 +12,10 @@ import '../elinux_cache.dart';
 import '../elinux_plugins.dart';
 
 class ELinuxRunCommand extends RunCommand with ELinuxExtension, ELinuxRequiredArtifacts {
-  ELinuxRunCommand({super.verboseHelp});
+  ELinuxRunCommand({
+    super.verboseHelp,
+    required super.toolContext,
+  });
 
   @override
   Future<Set<DevelopmentArtifact>> get requiredArtifacts async => <DevelopmentArtifact>{

@@ -6,6 +6,7 @@
 
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:flutter_tools/src/base/common.dart';
 import 'package:flutter_tools/src/base/file_system.dart';
 import 'package:flutter_tools/src/base/terminal.dart';
@@ -28,11 +29,17 @@ const List<String> _kAvailablePlatforms = <String>[
 ];
 
 class ELinuxCreateCommand extends CreateCommand {
-  ELinuxCreateCommand({super.verboseHelp});
+  ELinuxCreateCommand({
+    super.verboseHelp,
+    required super.androidContext,
+    required super.appleContext,
+    required super.templateRenderer,
+    required super.toolContext,
+  });
 
   @override
-  void addPlatformsOptions({String? customHelp, required Map<String, String> allowedHelp}) {
-    argParser.addMultiOption(
+  void addPlatformsOptions({ArgParser? parser, String? customHelp, required Map<String, String> allowedHelp}) {
+    (parser ?? argParser).addMultiOption(
       'platforms',
       help: customHelp,
       defaultsTo: _kAvailablePlatforms,
@@ -87,7 +94,7 @@ class ELinuxCreateCommand extends CreateCommand {
     if (argResults!['template'] != null) {
       return stringArg('template') == 'plugin';
     } else if (projectDir.existsSync() && projectDir.listSync().isNotEmpty) {
-      return determineTemplateType() == FlutterTemplateType.plugin;
+      return determineTemplateType(extensionTemplateManager: extensionTemplateManager) == FlutterTemplateType.plugin;
     }
     return false;
   }

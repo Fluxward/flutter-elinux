@@ -85,6 +85,9 @@ class ELinuxDevice extends Device {
   Future<String?> get emulatorId async => null;
 
   @override
+  Future<CpuArch> get cpuArch async => CpuArch.fromName(_targetArch);
+
+  @override
   Future<TargetPlatform> get targetPlatform async {
     // Use tester as a platform identifer for eLinux.
     // There's currently no other choice because getNameForTargetPlatform()
